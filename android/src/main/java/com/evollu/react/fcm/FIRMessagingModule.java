@@ -19,6 +19,8 @@ import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
@@ -27,12 +29,14 @@ import com.google.firebase.messaging.RemoteMessage.Notification;
 import android.app.Application;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.content.LocalBroadcastManager;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
 import android.content.Context;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +44,7 @@ import java.util.UUID;
 import com.google.firebase.FirebaseApp;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.provider.Settings.System.getString;
 
 public class FIRMessagingModule extends ReactContextBaseJavaModule implements LifecycleEventListener, ActivityEventListener {
     private final static String TAG = FIRMessagingModule.class.getCanonicalName();
@@ -133,10 +138,26 @@ public class FIRMessagingModule extends ReactContextBaseJavaModule implements Li
     }
 
     @ReactMethod
-    public void getFCMToken(Promise promise) {
+    public void getFCMToken(final Promise promise) {
         try {
-            Log.d(TAG, "Firebase token: " + FirebaseInstanceId.getInstance().getToken());
-            promise.resolve(FirebaseInstanceId.getInstance().getToken());
+//            Log.d(TAG, "Firebase token: " + FirebaseInstanceId.getInstance().getToken());
+//            promise.resolve(FirebaseInstanceId.getInstance().getToken());
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+                @Override
+                public void onComplete(@NonNull Task<String> task) {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+
+                    // Get new FCM registration token
+                    String token = task.getResult();
+
+                    Log.d(TAG, "Firebase token: " + token );
+                    promise.resolve(token);
+
+                }
+            });
         } catch (Throwable e) {
             e.printStackTrace();
             promise.reject(null,e.getMessage());
