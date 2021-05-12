@@ -21,7 +21,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.iid.FirebaseInstanceId;
+// import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.messaging.RemoteMessage.Notification;
@@ -167,10 +167,28 @@ public class FIRMessagingModule extends ReactContextBaseJavaModule implements Li
     @ReactMethod
     public void getEntityFCMToken(Promise promise) {
         try {
-            String senderId = FirebaseApp.getInstance().getOptions().getGcmSenderId();
-            String token = FirebaseInstanceId.getInstance().getToken(senderId, "FCM");
-            Log.d(TAG, "Firebase token: " + token);
-            promise.resolve(token);
+            // String senderId = FirebaseApp.getInstance().getOptions().getGcmSenderId();
+            // String token = FirebaseInstanceId.getInstance().getToken(senderId, "FCM");
+            // Log.d(TAG, "Firebase token: " + token);
+            // promise.resolve(token);
+            // New method?
+            // FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            //     @Override
+            //     public void onComplete(@NonNull Task<String> task) {
+            //         if (!task.isSuccessful()) {
+            //             Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+            //             return;
+            //         }
+
+            //         // Get new FCM registration token
+            //         String token = task.getResult();
+
+            //         Log.d(TAG, "Firebase token: " + token );
+            //         promise.resolve(token);
+
+            //     }
+            // });
+            promise.resolve(null);
         } catch (Throwable e) {
             e.printStackTrace();
             promise.reject(null,e.getMessage());
@@ -180,8 +198,15 @@ public class FIRMessagingModule extends ReactContextBaseJavaModule implements Li
     @ReactMethod
     public void deleteEntityFCMToken(Promise promise) {
         try {
-            String senderId = FirebaseApp.getInstance().getOptions().getGcmSenderId();
-            FirebaseInstanceId.getInstance().deleteToken(senderId, "FCM");
+            // String senderId = FirebaseApp.getInstance().getOptions().getGcmSenderId();
+            // FirebaseInstanceId.getInstance().deleteToken(senderId, "FCM");
+            // new method?
+            // FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            //     @Override
+            //     public void onComplete(@NonNull Task<String> task) {
+            //         promise.resolve(null);
+            //     }
+            // });
             promise.resolve(null);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -192,7 +217,7 @@ public class FIRMessagingModule extends ReactContextBaseJavaModule implements Li
     @ReactMethod
     public void deleteInstanceId(Promise promise){
         try {
-            FirebaseInstanceId.getInstance().deleteInstanceId();
+            // FirebaseInstanceId.getInstance().deleteInstanceId();
             promise.resolve(null);
         } catch (Exception e) {
             e.printStackTrace();
